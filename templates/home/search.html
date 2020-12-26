@@ -9,7 +9,18 @@
 {% endblock css %}
 {% block body %} 
 <div class="container">
-    <h2 class="text-center mt-3">Search Results:</h2><hr>
+    <h2 class="text-center mt-3">Search Results: (total {{allPost|length}} result found)</h2><hr>
+    {% if allPost|length < 1 %}
+    <h4>No Result found for "{{query}}"</h4>
+    Your search query: <b>{{query}}</b> - did not match any documents.<br>
+    Suggestions:
+    <ul>
+    <li>Make sure that all words are spelled correctly.<br></li>
+    <li>Try different keywords.<br></li>
+    <li>Try more general keywords.<br></li>
+    <li>Try fewer keywords.<br></li>
+    </ul>
+    {% endif %}
     <div class="row ">
     {% for post in allPost %}
     <div class="col-lg-12 col-12 p-2">

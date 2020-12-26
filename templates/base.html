@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    {% block js %}
+    {% endblock js %}
 
     <title>{% block title %} {% endblock  %}</title>
-    <style>{% block css %}{% endblock  %}</style>
+    <style> .alert { margin-bottom:0px;} {% block css %}{% endblock  %}</style>
   </head>
   <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -36,11 +39,30 @@
     </ul>
     <form class="form-inline my-2 my-lg-0" method="GET" action="/search">
       <input class="form-control mr-sm-2" type="search" name="query" id="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      <button class="btn btn-outline-success my-2 mr-2 my-sm-0" type="submit">Search</button>
     </form>
-  </div>
-     <a href="/admin"> <button class="btn btn-outline-success m-2 my-sm-0" >Admin</button></a>
+  {% if user.is_authenticated %}
+        <div class="dropdown">
+          <button class="btn btn-danger dropdown-toggle mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-user" aria-hidden="true"></i> Welcome {{request.user.first_name}}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="/logout">Logout</a>
+          </div>
+        </div> 
+      {% else %}
+        <!-- Button trigger modal login-->
+    <button type="button" class="btn btn-danger mr-2" data-toggle="modal" data-target="#login">
+      Login
+    </button>
+        <!-- Button trigger modal -->
+    <button type="button" class="btn btn-danger mr-2" data-toggle="modal" data-target="#signup">
+      Signup
+    </button>
+  {% endif %}
+
 </nav>
+  </div>
 {% for message in messages %}
     <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center" role="alert">
         <strong>Message!</strong> {{ message }}
@@ -49,7 +71,106 @@
         </button>
     </div>
 {% endfor %}
+
+
+
+<!-- Login Modal -->
+<div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="login" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="login title">Login to iCoder Account</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          {% comment %} <span aria-hidden="true">&times;</span> {% endcomment %}
+        </button>
+      </div>
+      <div class="modal-body">
+      <form class="d-flex flex-column form-signin p-4" action="/login/" method="post">
+      {% csrf_token %}
+        <div class="form-signin form-group">
+        <label for="loginusername">Username</label>
+        <input type="text" class="form-control fields" id="loginusername" name="loginusername" required="" placeholder="Enter your username" >
+        {% comment %} <span id="error_name" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        
+        <div class="form-group">
+        <label for="loginpassword">Password</label>
+        <input type="password"  class="form-control fields" name="loginpassword" id="loginpassword" placeholder="Enter your password">
+        {% comment %} <span id="error_password" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        <button type="submit" name="loginsubmit" id="loginsubmit"  class="btn btn-primary">Login</button>
+</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Signup Modal -->
+<div class="modal fade" id="signup" tabindex="-1" role="dialog" aria-labelledby="signup" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="signup title">Create new iCoder Account</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          {% comment %} <span aria-hidden="true">&times;</span> {% endcomment %}
+        </button>
+      </div>
+      <div class="modal-body">
+    <form class="d-flex flex-column form-signin p-4" action="/signup/" method="post">
+    {% csrf_token %}
+        <div class="form-signin form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control fields" id="username" name="username" required="" placeholder="Enter unique username" >
+        <span id="error_name" class="text-danger text-success error_fields"></span>
+        </div>
+        <div class="form-signin form-group">
+        <label for="fname">First Name</label>
+        <input type="text" class="form-control fields" id="fname" name="fname" required="" placeholder="Enter First name">
+        {% comment %} <span id="error_name" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        <div class="form-signin form-group">
+        <label for="lastname">Last Name</label>
+        <input type="text" class="form-control fields" id="lastname" name="lastname" required="" placeholder="Enter Last name">
+        {% comment %} <span id="error_name" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        <div class="form-group">
+        <label for="Email">Email address</label>
+        <input type="email" class="form-control fields"  id="email" name="email" required="" placeholder="Enter email address">
+        {% comment %} <span id="error_email" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        <div class="form-signin form-group">
+        <label for="mobile">Phone No</label>
+        <input type="number" class="form-control fields" id="mobile" name="mobile"  required="" placeholder="Enter mobile number">
+        {% comment %} <span id="error_mobile" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="password"  class="form-control fields" name="password" id="password" placeholder="Enter password">
+        {% comment %} <span id="error_password" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        <div class="form-group">
+        <label for="cexampleInputPassword">Confirm Password</label>
+        <input type="password" class="form-control fields" name="cpassword" id="cpassword" required="" placeholder="Enter password again">
+        {% comment %} <span id="error_confirm_password" class="text-danger text-success error_fields"></span> {% endcomment %}
+        </div>
+        <button type="submit" name="submit" id="submit"  class="btn btn-primary">Create Account</button>
+</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
    {% block body %}{% endblock  %}
+
+   <script>
+   let previews = document.getElementsByClassName('preview');
+   Array.from(previews).forEach((element)=>{
+    element.innerHTML = element.innerText
+   })
+   </script>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

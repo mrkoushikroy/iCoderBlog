@@ -1,11 +1,13 @@
 from django.db.models import query
 from blog.models import Post
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from home.models import Contact
 from blog.models import Post
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login , logout
 
-# Create your views here.
+# Html pages requests
 def home(request):
     allPost = Post.objects.all()
     context={'allPost': allPost}
@@ -33,6 +35,81 @@ def about(request):
 
 def search(request):
     query= request.GET['query']
-    allPost = Post.objects.filter(title__icontains = query)
-    params = {'allPost':allPost}
+    if len(query)>78:
+        allPost=Post.objects.none()
+    else:
+        allPostTitle = Post.objects.filter(title__icontains = query)
+        allPostContent = Post.objects.filter(content__icontains = query)
+        allPostAuthor= Post.objects.filter(author__icontains = query)
+        allPost =  allPostTitle.union(allPostContent, allPostAuthor)
+    if allPost.count() == 0:
+        messages.error(request, 'No search result found')
+         
+    params = {'allPost':allPost, 'query':query}
     return render(request, 'home/search.html', params)
+
+
+# Authenticate APIs
+
+def handleSignup(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        fname = request.POST['fname']
+        lastname = request.POST['lastname']
+        email = request.POST['email']
+        mobile = request.POST['mobile']
+        password = request.POST['password']
+        cpassword = request.POST['cpassword']
+
+        # check for errornous input
+        
+        if len(username) !=6:
+            messages.error(request, 'username must be of 6 characters')
+            return redirect('home')
+        if not username.isalnum():
+            messages.error(request, 'username must be of 6 characters of alpha numeric')
+            return redirect('home')
+
+        if User.objects.filter(username__iexact=username).exists():
+            messages.error(request, 'username already exists try diff username')
+            return redirect('home')
+
+        if User.objects.filter(email__iexact=email).exists():
+            messages.error(request, 'email already exists try different email')
+            return redirect('home')
+
+
+        #create user
+        myuser = User.objects.create_user(username, email, password)
+        myuser.first_name = fname
+        myuser.last_name = lastname
+        myuser.mobile = mobile
+        myuser.save()
+        messages.success(request, 'Hoola your account has been created !')
+        return redirect('home')
+
+    else:
+        return HttpResponse('404 not found')
+
+def handleLogins(request):
+    if request.method == 'POST':
+        loginusername = request.POST['loginusername']
+        loginpassword = request.POST['loginpassword']
+
+        user = authenticate(username = loginusername, password = loginpassword)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Hoola successfully logged in !')
+            return redirect('home')
+        else:
+            messages.error(request, 'User invalid credentials !')
+            return redirect('home')
+
+    return HttpResponse('404 not found')
+
+def handleLogout(request):
+    logout(request)
+    messages.success(request, 'Hoola successfully logged out !')
+    return redirect('home')
+    
