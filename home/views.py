@@ -2,7 +2,6 @@ from django.db.models import query
 from blog.models import Post
 from django.shortcuts import render, HttpResponse, redirect
 from home.models import Contact
-from blog.models import Post
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login , logout
@@ -90,6 +89,7 @@ def handleSignup(request):
 
     else:
         return HttpResponse('404 not found')
+
 
 def handleLogins(request):
     if request.method == 'POST':

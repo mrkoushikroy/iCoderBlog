@@ -31,6 +31,10 @@
                 </form>
                 {% else %}
                 <h5>Please login to post a comment</h5>
+                <!-- Button trigger modal login-->
+    <button type="button" class="btn btn-danger mr-2" data-toggle="modal" data-target="#login">
+      Login
+    </button>
                 {% endif %}
             </div>
             <label for="exampleInputEmail1">All previous comments</label>
@@ -68,7 +72,6 @@
                     {% endif %}
                     <div class="replies my-2  ">
                         {% for reply in replyDict|get_val:comment.sno %}
-                        <h6>Total  replies</h6>
                         <div class="d-flex p-2 border border-dark rounded my-1">
                             <div class="col-md-1 col-1 ">
                                 <img class="w-100 p-2 rounded-circle" src="/static/img/user.png" alt="">
